@@ -1,21 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
+{{define "title"}}Criar Despesa{{end}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
+{{define "content"}}
+<div class="page-header">
+    <h1>➕ Nova Despesa</h1>
+    <p>Adicione uma nova transação financeira</p>
+</div>
 
-<body>
-    <h1>Criar Despesa</h1>
-    <form action="/expenses" method="post">
-        <label for="description">Descrição</label>
-        <input type="text" id="description" name="description">
-        <label for="amount">Valor</label>
-        <input type="number" id="amount" name="amount">
-        <button type="submit">Salvar</button>
+<div class="card" style="max-width: 600px;">
+    <form action="/create" method="POST">
+        <div class="form-group">
+            <label for="description">Descrição</label>
+            <input type="text" class="form-control" id="description" name="description" required
+                placeholder="Ex: Conta de luz">
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Valor (R$)</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required
+                placeholder="0.00">
+        </div>
+
+        <div class="form-group">
+            <label for="type">Tipo</label>
+            <select class="form-control" id="type" name="type" required>
+                <option value="">Selecione...</option>
+                <option value="despesa">💸 Despesa</option>
+                <option value="receita">💰 Receita</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Categoria</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="">Selecione...</option>
+                <option value="alimentação">🍔 Alimentação</option>
+                <option value="transporte">🚗 Transporte</option>
+                <option value="moradia">🏠 Moradia</option>
+                <option value="saúde">🏥 Saúde</option>
+                <option value="educação">📚 Educação</option>
+                <option value="lazer">🎮 Lazer</option>
+                <option value="salário">💼 Salário</option>
+                <option value="outros">📦 Outros</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="date">Data</label>
+            <input type="date" class="form-control" id="date" name="date" required>
+        </div>
+
+        <div class="actions" style="margin-top: 30px;">
+            <button type="submit" class="btn btn-success">💾 Salvar</button>
+            <a href="/" class="btn btn-secondary">❌ Cancelar</a>
+        </div>
     </form>
-</body>
-
-</html>
+</div>
+{{end}}

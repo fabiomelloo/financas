@@ -1,0 +1,61 @@
+{{define "title"}}Editar Despesa{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>✏️ Editar Despesa</h1>
+    <p>Atualize os dados da transação</p>
+</div>
+
+<div class="card" style="max-width: 600px;">
+    <form action="/update" method="POST">
+        <input type="hidden" id="id" name="id" value="{{.Expense.ID}}">
+
+        <div class="form-group">
+            <label for="description">Descrição</label>
+            <input type="text" class="form-control" id="description" name="description" value="{{.Expense.Description}}"
+                required>
+        </div>
+
+        <div class="form-group">
+            <label for="amount">Valor (R$)</label>
+            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01"
+                value="{{.Expense.Amount}}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Tipo</label>
+            <select class="form-control" id="type" name="type" required>
+                <option value="despesa" {{if eq .Expense.Type "despesa" }}selected{{end}}>💸 Despesa</option>
+                <option value="receita" {{if eq .Expense.Type "receita" }}selected{{end}}>💰 Receita</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Categoria</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="alimentação" {{if eq .Expense.Category "alimentação" }}selected{{end}}>🍔 Alimentação
+                </option>
+                <option value="transporte" {{if eq .Expense.Category "transporte" }}selected{{end}}>🚗 Transporte
+                </option>
+                <option value="moradia" {{if eq .Expense.Category "moradia" }}selected{{end}}>🏠 Moradia</option>
+                <option value="saúde" {{if eq .Expense.Category "saúde" }}selected{{end}}>🏥 Saúde</option>
+                <option value="educação" {{if eq .Expense.Category "educação" }}selected{{end}}>📚 Educação</option>
+                <option value="lazer" {{if eq .Expense.Category "lazer" }}selected{{end}}>🎮 Lazer</option>
+                <option value="salário" {{if eq .Expense.Category "salário" }}selected{{end}}>💼 Salário</option>
+                <option value="outros" {{if eq .Expense.Category "outros" }}selected{{end}}>📦 Outros</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="date">Data</label>
+            <input type="date" class="form-control" id="date" name="date" value="{{.Expense.Date.Format " 2006-01-02"}}"
+                required>
+        </div>
+
+        <div class="actions" style="margin-top: 30px;">
+            <button type="submit" class="btn btn-primary">💾 Atualizar</button>
+            <a href="/" class="btn btn-secondary">❌ Cancelar</a>
+        </div>
+    </form>
+</div>
+{{end}}
