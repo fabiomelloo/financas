@@ -1,0 +1,415 @@
+{{define "title"}}Relatórios & Estatísticas{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>Relatórios de Sucesso</h1>
+    <p>Uma visão clara da sua saúde financeira.</p>
+</div>
+
+<!-- Cartões de KPIs -->
+<div class="insights-grid">
+    <!-- Saldo -->
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Saldo Líquido</h3>
+        <div
+            class="kpi-value kpi-value-large {{if ge .Data.Balance 0.0}}kpi-value-positive{{else}}kpi-value-negative{{end}}">
+            R$ {{printf "%.2f" .Data.Balance}}
+        </div>
+    </div>
+
+    <!-- Receitas -->
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Entradas Totais</h3>
+        <div class="kpi-value kpi-value-medium kpi-value-positive">
+            + R$ {{printf "%.2f" .Data.TotalIncome}}
+        </div>
+    </div>
+
+    <!-- Despesas -->
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Saídas Totais</h3>
+        <div class="kpi-value kpi-value-medium kpi-value-negative">
+            - R$ {{printf "%.2f" .Data.TotalExpense}}
+        </div>
+    </div>
+
+    <!-- Total de Transações -->
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Total de Transações</h3>
+        <div class="kpi-value kpi-value-medium" style="color: var(--text-primary);">
+            {{.Data.TotalTransactions}}
+        </div>
+    </div>
+</div>
+
+{{if gt (len .Data.CategoryStats) 0}}
+<!-- Seção de Gráficos -->
+<div class="charts-section">
+    <!-- Distribuição por Categoria (Gráfico de Rosca) -->
+    <div class="card">
+        <h3 class="chart-title">Distribuição por Categoria</h3>
+        <div class="chart-container">
+            <canvas id="categoryChart" aria-label="Gráfico de distribuição por categoria"></canvas>
+        </div>
+        <div class="category-list">
+            <table>
+                <tbody>
+                    {{range .Data.CategoryStats}}
+                    <tr>
+                        <td>{{.Category}} ({{.Type}})</td>
+                        <td class="{{if eq .Type " receita"}}category-receita{{else}}category-despesa{{end}}">
+                            R$ {{printf "%.2f" .Total}}
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Distribuição por Tipo (Gráfico de Barras) -->
+    {{if gt (len .Data.TypeStats) 0}}
+    <div class="card">
+        <h3 class="chart-title">Receitas vs Despesas</h3>
+        <div class="chart-container">
+            <canvas id="typeChart" aria-label="Gráfico de barras receitas vs despesas"></canvas>
+        </div>
+    </div>
+    {{end}}
+
+    <!-- Tendência Mensal (Gráfico de Linha) -->
+    {{if gt (len .Data.MonthlyStats) 0}}
+    <div class="card">
+        <h3 class="chart-title">Tendência Mensal</h3>
+        <div class="chart-container">
+            <canvas id="monthlyChart" aria-label="Gráfico de linha tendência mensal"></canvas>
+        </div>
+    </div>
+    {{end}}
+</div>
+
+<!-- Tabela de Maiores Despesas -->
+{{if gt (len .Data.TopExpenses) 0}}
+<div class="card">
+    <h3 class="chart-title">Top 5 Maiores Transações</h3>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Data.TopExpenses}}
+                <tr>
+                    <td style="color: var(--text-primary); font-weight: 500;">{{.Description}}</td>
+                    {{if eq .Type "receita"}}
+                    <td class="amount-positive">+ R$ {{printf "%.2f" .Amount}}</td>
+                    <td><span class="badge badge-receita">Entrada</span></td>
+                    {{else}}
+                    <td class="amount-negative">- R$ {{printf "%.2f" .Amount}}</td>
+                    <td><span class="badge badge-despesa">Saída</span></td>
+                    {{end}}
+                    <td>{{.Category}}</td>
+                    <td>{{.Date.Format "02/01/2006"}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}
+
+<!-- Chart.js Library and Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="initCharts()"></script>
+<script>
+    // Initialize charts after Chart.js loads
+    function initCharts() {
+        // Double check Chart.js is loaded
+        if (typeof Chart === 'undefined') {
+            console.warn('Chart.js ainda não carregou, tentando novamente...');
+            setTimeout(initCharts, 200);
+            return;
+        }
+
+        console.log('Chart.js carregado, inicializando gráficos...');
+        // Gráfico de Categorias (Rosca)
+        const categoryCtx = document.getElementById('categoryChart');
+        if (categoryCtx) {
+            try {
+                const categories = [];
+                const dataValues = [];
+                const types = [];
+
+                { { range.Data.CategoryStats } }
+                categories.push("{{.Category}}");
+                dataValues.push({{.Total }});
+            types.push("{{.Type}}");
+            { { end } }
+
+            console.log('Dados do gráfico de categorias:', { categories, dataValues, types });
+
+            if (categories.length > 0) {
+                const bgColors = types.map(t => t === 'receita' ? '#9CAF88' : 'rgba(212, 140, 149, 0.6)');
+                const borderColors = types.map(t => t === 'receita' ? '#9CAF88' : '#D48C95');
+
+                new Chart(categoryCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: dataValues,
+                            backgroundColor: bgColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    color: '#e0e0e0',
+                                    font: { family: 'Inter' },
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        return context.label + ': R$ ' + context.parsed.toFixed(2);
+                                    }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+                console.log('Gráfico de categorias criado com sucesso');
+            } else {
+                console.warn('Nenhum dado de categoria disponível');
+            }
+        } catch (error) {
+            console.error('Erro ao criar gráfico de categorias:', error);
+        }
+    }
+
+    // Gráfico de Tipos (Barras)
+    const typeCtx = document.getElementById('typeChart');
+    if (typeCtx) {
+        try {
+            const typeLabels = [];
+            const typeValues = [];
+
+            { { range.Data.TypeStats } }
+            typeLabels.push("{{.Type}}" === "receita" ? "Receitas" : "Despesas");
+            typeValues.push({{.Total }});
+        { { end } }
+
+        console.log('Dados do gráfico de tipos:', { typeLabels, typeValues });
+
+        if (typeLabels.length > 0) {
+            const typeColors = typeLabels.map(l => l === "Receitas" ? '#9CAF88' : '#D48C95');
+
+            new Chart(typeCtx.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: typeLabels,
+                    datasets: [{
+                        label: 'Valor Total',
+                        data: typeValues,
+                        backgroundColor: typeColors,
+                        borderColor: typeColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return 'R$ ' + context.parsed.y.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e0e0e0',
+                                callback: function (value) {
+                                    return 'R$ ' + value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#e0e0e0'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+            console.log('Gráfico de tipos criado com sucesso');
+        } else {
+            console.warn('Nenhum dado de tipo disponível');
+        }
+    } catch (error) {
+        console.error('Erro ao criar gráfico de tipos:', error);
+    }
+        }
+
+    // Gráfico Mensal (Linha)
+    const monthlyCtx = document.getElementById('monthlyChart');
+    if (monthlyCtx) {
+        try {
+            const months = [];
+            const incomes = [];
+            const expenses = [];
+            const balances = [];
+
+            { { range.Data.MonthlyStats } }
+            months.push("{{.Month}}");
+            incomes.push({{.Income }});
+        expenses.push({{.Expense }});
+    balances.push({{.Balance }});
+    { { end } }
+
+    console.log('Dados do gráfico mensal:', { months, incomes, expenses, balances });
+
+    if (months.length > 0) {
+        // Reverse to show oldest to newest
+        months.reverse();
+        incomes.reverse();
+        expenses.reverse();
+        balances.reverse();
+
+        new Chart(monthlyCtx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: months,
+                datasets: [
+                    {
+                        label: 'Receitas',
+                        data: incomes,
+                        borderColor: '#9CAF88',
+                        backgroundColor: 'rgba(156, 175, 136, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Despesas',
+                        data: expenses,
+                        borderColor: '#D48C95',
+                        backgroundColor: 'rgba(212, 140, 149, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: 'Saldo',
+                        data: balances,
+                        borderColor: '#4B0082',
+                        backgroundColor: 'rgba(75, 0, 130, 0.1)',
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#e0e0e0',
+                            font: { family: 'Inter' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (context) {
+                                return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            color: '#e0e0e0',
+                            callback: function (value) {
+                                return 'R$ ' + value.toFixed(0);
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#e0e0e0'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        console.log('Gráfico mensal criado com sucesso');
+    } else {
+        console.warn('Nenhum dado mensal disponível');
+    }
+            } catch (error) {
+        console.error('Erro ao criar gráfico mensal:', error);
+    }
+        }
+
+    console.log('Todos os gráficos inicializados');
+    }
+
+    // Fallback: Initialize when DOM is ready if Chart.js already loaded
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            if (typeof Chart !== 'undefined') {
+                initCharts();
+            }
+        });
+    } else {
+        // DOM already loaded, check if Chart.js is available
+        if (typeof Chart !== 'undefined') {
+            initCharts();
+        }
+    }
+</script>
+{{else}}
+<!-- Estado Vazio -->
+<div class="card">
+    <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <h3>Nenhum dado disponível</h3>
+        <p>Adicione algumas transações para ver os relatórios financeiros.</p>
+        <a href="/create" class="btn btn-primary" style="margin-top: 1rem;">Adicionar Primeira Transação</a>
+    </div>
+</div>
+{{end}}
+{{end}}

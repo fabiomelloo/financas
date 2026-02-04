@@ -27,6 +27,10 @@ func main() {
 	// Register routes
 	routes.RegisterRoutes(controller)
 
+	// Serve static files (CSS, JS, images)
+	fs := http.FileServer(http.Dir("web/static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	// Start HTTP server
 	fmt.Println("Server running at http://localhost:8080")
 	if err := http.ListenAndServe(":8080", nil); err != nil {

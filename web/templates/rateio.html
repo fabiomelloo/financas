@@ -1,0 +1,60 @@
+{{define "title"}}Rateio do Lanche{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>Rateio do Lanche 🥪</h1>
+    <p>Controle de gastos da equipe (6 Pessoas)</p>
+</div>
+
+<!-- Summary Cards -->
+<div class="insights-grid">
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Total Gasto (Equipe)</h3>
+        <div class="kpi-value kpi-value-large kpi-value-negative">
+            R$ {{printf "%.2f" .Data.TotalSpent}}
+        </div>
+    </div>
+
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Cota por Pessoa (1/6)</h3>
+        <div class="kpi-value kpi-value-medium" style="color: var(--text-primary);">
+            R$ {{printf "%.2f" .Data.SharePerPerson}}
+        </div>
+    </div>
+</div>
+
+<!-- Members Table -->
+<div class="card">
+    <h3 class="chart-title">Balanço Individual</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Total Pago</th>
+                    <th>Saldo (Pago - Cota)</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Data.MemberStats}}
+                <tr>
+                    <td style="font-weight: 500;">{{.Name}}</td>
+                    <td>R$ {{printf "%.2f" .Paid}}</td>
+                    <td class="{{if ge .Balance 0.0}}amount-positive{{else}}amount-negative{{end}}">
+                        {{if ge .Balance 0.0}}+{{end}} R$ {{printf "%.2f" .Balance}}
+                    </td>
+                    <td>
+                        {{if ge .Balance 0.0}}
+                        <span class="badge badge-receita">Crédito (A receber)</span>
+                        {{else}}
+                        <span class="badge badge-despesa">Débito (A pagar)</span>
+                        {{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

@@ -1,61 +1,72 @@
-{{define "title"}}Editar Despesa{{end}}
+{{define "title"}}Editar Movimento{{end}}
 
 {{define "content"}}
-<div class="page-header">
-    <h1>✏️ Editar Despesa</h1>
-    <p>Atualize os dados da transação</p>
-</div>
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header" style="text-align: left; margin-bottom: 2rem;">
+        <a href="/" class="btn btn-warning" style="margin-bottom: 1rem; display: inline-flex;">← Voltar</a>
+        <h1>Editar Registro #{{.Expense.ID}}</h1>
+        <p>Ajuste os detalhes deste lançamento.</p>
+    </div>
 
-<div class="card" style="max-width: 600px;">
-    <form action="/update" method="POST">
-        <input type="hidden" id="id" name="id" value="{{.Expense.ID}}">
+    <div class="card">
+        <form action="/update" method="POST">
+            <input type="hidden" name="id" value="{{.Expense.ID}}">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
 
-        <div class="form-group">
-            <label for="description">Descrição</label>
-            <input type="text" class="form-control" id="description" name="description" value="{{.Expense.Description}}"
-                required>
-        </div>
+            <div class="form-group">
+                <label for="description">O que é?</label>
+                <input type="text" id="description" name="description" value="{{.Expense.Description}}" required
+                    autocomplete="off">
+            </div>
 
-        <div class="form-group">
-            <label for="amount">Valor (R$)</label>
-            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01"
-                value="{{.Expense.Amount}}" required>
-        </div>
+            <div class="form-group">
+                <label for="amount">Valor (R$)</label>
+                <input type="number" id="amount" name="amount" step="0.01" value="{{printf " %.2f" .Expense.Amount}}"
+                    required style="font-size: 1.2rem; font-family: var(--font-display);">
+            </div>
 
-        <div class="form-group">
-            <label for="type">Tipo</label>
-            <select class="form-control" id="type" name="type" required>
-                <option value="despesa" {{if eq .Expense.Type "despesa" }}selected{{end}}>💸 Despesa</option>
-                <option value="receita" {{if eq .Expense.Type "receita" }}selected{{end}}>💰 Receita</option>
-            </select>
-        </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="type">Tipo de Fluxo</label>
+                    <select id="type" name="type" required>
+                        <option value="receita" {{if eq .Expense.Type "receita" }}selected{{end}}>Receita (Entrada)
+                        </option>
+                        <option value="despesa" {{if eq .Expense.Type "despesa" }}selected{{end}}>Despesa (Saída)
+                        </option>
+                    </select>
+                </div>
 
-        <div class="form-group">
-            <label for="category">Categoria</label>
-            <select class="form-control" id="category" name="category" required>
-                <option value="alimentação" {{if eq .Expense.Category "alimentação" }}selected{{end}}>🍔 Alimentação
-                </option>
-                <option value="transporte" {{if eq .Expense.Category "transporte" }}selected{{end}}>🚗 Transporte
-                </option>
-                <option value="moradia" {{if eq .Expense.Category "moradia" }}selected{{end}}>🏠 Moradia</option>
-                <option value="saúde" {{if eq .Expense.Category "saúde" }}selected{{end}}>🏥 Saúde</option>
-                <option value="educação" {{if eq .Expense.Category "educação" }}selected{{end}}>📚 Educação</option>
-                <option value="lazer" {{if eq .Expense.Category "lazer" }}selected{{end}}>🎮 Lazer</option>
-                <option value="salário" {{if eq .Expense.Category "salário" }}selected{{end}}>💼 Salário</option>
-                <option value="outros" {{if eq .Expense.Category "outros" }}selected{{end}}>📦 Outros</option>
-            </select>
-        </div>
+                <div class="form-group">
+                    <label for="date">Data</label>
+                    <input type="date" id="date" name="date" value="{{.Expense.Date.Format " 2006-01-02"}}" required>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="date">Data</label>
-            <input type="date" class="form-control" id="date" name="date" value="{{.Expense.Date.Format " 2006-01-02"}}"
-                required>
-        </div>
+            <div class="form-group">
+                <label for="category">Categoria</label>
+                <select id="category" name="category" required>
+                    <option value="alimentacao" {{if eq .Expense.Category "alimentacao" }}selected{{end}}>Alimentação
+                    </option>
+                    <option value="transporte" {{if eq .Expense.Category "transporte" }}selected{{end}}>Transporte
+                    </option>
+                    <option value="lazer" {{if eq .Expense.Category "lazer" }}selected{{end}}>Lazer</option>
+                    <option value="saude" {{if eq .Expense.Category "saude" }}selected{{end}}>Saúde</option>
+                    <option value="moradia" {{if eq .Expense.Category "moradia" }}selected{{end}}>Moradia</option>
+                    <option value="educacao" {{if eq .Expense.Category "educacao" }}selected{{end}}>Educação</option>
+                    <option value="outros" {{if eq .Expense.Category "outros" }}selected{{end}}>Outros</option>
+                </select>
+            </div>
 
-        <div class="actions" style="margin-top: 30px;">
-            <button type="submit" class="btn btn-primary">💾 Atualizar</button>
-            <a href="/" class="btn btn-secondary">❌ Cancelar</a>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="payer">Quem pagou? (Rateio)</label>
+                <input type="text" id="payer" name="payer" value="{{.Expense.Payer}}"
+                    placeholder="Ex: João, Maria (Opcional)">
+            </div>
+
+            <div style="margin-top: 2rem; text-align: right;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Salvar Alterações</button>
+            </div>
+        </form>
+    </div>
 </div>
 {{end}}

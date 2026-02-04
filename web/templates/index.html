@@ -1,64 +1,73 @@
-{{define "title"}}Lista de Despesas{{end}}
+﻿{{define "title"}}Dashboard Financeiro{{end}}
 
 {{define "content"}}
 <div class="page-header">
-    <h1>📊 Dashboard Financeiro</h1>
-    <p>Gerencie suas receitas e despesas</p>
+    <h1>Sua Jornada Financeira</h1>
+    <p>Visualize seus fluxos e tome decisões com clareza.</p>
 </div>
 
 <div class="actions">
-    <a href="/create" class="btn btn-primary">➕ Nova Despesa</a>
+    <a href="/create" class="btn btn-primary">
+        <span>+</span> Adicionar Movimento
+    </a>
 </div>
 
 <div class="card">
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Descrição</th>
-                <th>Valor</th>
-                <th>Tipo</th>
-                <th>Categoria</th>
-                <th>Data</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{range .Expenses}}
-            <tr>
-                <td>#{{.ID}}</td>
-                <td>{{.Description}}</td>
-                <td class="{{if eq .Type " receita"}}amount-positive{{else}}amount-negative{{end}}">
-                    {{if eq .Type "receita"}}+{{else}}-{{end}} R$ {{printf "%.2f" .Amount}}
-                </td>
-                <td>
-                    <span class="badge {{if eq .Type " receita"}}badge-receita{{else}}badge-despesa{{end}}">
-                        {{.Type}}
-                    </span>
-                </td>
-                <td>{{.Category}}</td>
-                <td>{{.Date.Format "02/01/2006"}}</td>
-                <td class="table-actions">
-                    <a href="/edit?id={{.ID}}" class="btn btn-warning">✏️</a>
-                    <form action="/delete" method="POST">
-                        <input type="hidden" name="id" value="{{.ID}}">
-                        <button type="submit" class="btn btn-danger"
-                            onclick="return confirm('Tem certeza que deseja excluir?')">🗑️</button>
-                    </form>
-                </td>
-            </tr>
-            {{else}}
-            <tr>
-                <td colspan="7">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">💸</div>
-                        <h3>Nenhuma despesa cadastrada</h3>
-                        <p>Clique em "Nova Despesa" para começar</p>
-                    </div>
-                </td>
-            </tr>
-            {{end}}
-        </tbody>
-    </table>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Descrição</th>
+                    <th>Valor</th>
+                    <th>Tipo</th>
+                    <th>Categoria</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Expenses}}
+                <tr>
+                    <td>#{{.ID}}</td>
+                    <td style="color: var(--text-primary); font-weight: 500;">{{.Description}}</td>
+
+                    {{if eq .Type "receita"}}
+                    <td class="amount-positive">+ R$ {{printf "%.2f" .Amount}}</td>
+                    <td><span class="badge badge-receita">Entrada</span></td>
+                    {{else}}
+                    <td class="amount-negative">- R$ {{printf "%.2f" .Amount}}</td>
+                    <td><span class="badge badge-despesa">Saída</span></td>
+                    {{end}}
+
+                    <td>{{.Category}}</td>
+                    <td>{{.Date.Format "02/01/2006"}}</td>
+
+                    <td class="table-actions">
+                        <a href="/edit?id={{.ID}}" class="btn btn-warning"
+                            style="padding: 0.4rem 0.8rem; font-size: 0.9rem;">Editar</a>
+                        <form action="/delete" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="{{.ID}}">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                            <button type="submit" class="btn btn-danger"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem;"
+                                onclick="return confirm('Confirmar remoção deste registro?')">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🍃</div>
+                            <h3>Tudo calmo por aqui</h3>
+                            <p>Adicione um novo movimento para começar seu controle.</p>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
 </div>
 {{end}}

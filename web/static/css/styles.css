@@ -1,0 +1,534 @@
+/* ============================================
+   AURA WEALTH OS - ORGANIC PRECISION THEME
+   ============================================ */
+
+/* Variables (Custom Properties) */
+:root {
+    /* Palette - Organic Precision */
+    --bg-base: #1A1A1A;
+    /* Deep Slate */
+    --surface: rgba(36, 36, 36, 0.6);
+    /* Glass Surface */
+    --surface-hover: rgba(50, 50, 50, 0.7);
+    --border: rgba(255, 255, 255, 0.06);
+
+    --accent: #4B0082;
+    /* Electric Indigo */
+    --accent-hover: #5E1DAD;
+    --accent-glow: rgba(75, 0, 130, 0.4);
+
+    --success: #9CAF88;
+    /* Soft Sage */
+    --success-bg: rgba(156, 175, 136, 0.15);
+
+    --danger: #D48C95;
+    /* Muted Rose/Red */
+    --danger-bg: rgba(212, 140, 149, 0.15);
+
+    --text-primary: #E0E0E0;
+    /* Off-white */
+    --text-secondary: #A0A0A0;
+    /* Muted Gray */
+    --text-tertiary: #666666;
+
+    /* Typography */
+    --font-display: 'Instrument Serif', serif;
+    --font-body: 'Inter', sans-serif;
+
+    /* Dimensions & Spacing */
+    --radius-sm: 12px;
+    --radius-md: 24px;
+    --radius-lg: 32px;
+    --radius-full: 9999px;
+
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2rem;
+    --spacing-xl: 3rem;
+
+    /* Effects */
+    --glass-blur: blur(12px);
+    --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.5);
+    --transition-calm: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Apple-like ease */
+}
+
+/* Reset basics */
+*,
+*::before,
+*::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body & Noise Texture */
+body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Noise Overlay - Anti-AI aesthetic */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    /* Serif doesn't need bold */
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-md);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: var(--transition-calm);
+}
+
+p {
+    color: var(--text-secondary);
+    max-width: 65ch;
+}
+
+/* Layout Containers */
+.navbar {
+    padding: var(--spacing-lg) 0;
+    border-bottom: 1px solid transparent;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-style: italic;
+    color: var(--text-primary);
+}
+
+.nav-links {
+    display: flex;
+    gap: var(--spacing-lg);
+    list-style: none;
+}
+
+.nav-links a {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text-primary);
+}
+
+.main-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-xl) var(--spacing-md);
+    animation: fadeIn 0.8s ease-out;
+}
+
+.actions {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* Components: Cards (Glassmorphism) */
+.card {
+    background: var(--surface);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-soft);
+    transition: transform var(--transition-calm), border-color var(--transition-calm);
+}
+
+.card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+/* Components: Buttons (Organic Shape) */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.75rem;
+    border-radius: var(--radius-full);
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all var(--transition-calm);
+    border: none;
+    outline: none;
+}
+
+.btn-primary {
+    background-color: var(--accent);
+    color: white;
+    box-shadow: 0 4px 25px var(--accent-glow);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-hover);
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px var(--accent-glow);
+}
+
+.btn-warning {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.5rem;
+}
+
+.btn-warning:hover {
+    background: var(--surface-hover);
+    color: var(--text-primary);
+}
+
+.btn-danger {
+    background: transparent;
+    color: var(--danger);
+}
+
+.btn-danger:hover {
+    background: var(--danger-bg);
+}
+
+/* Tables (Borderless & Clean) */
+.table-responsive {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    /* Space between rows */
+}
+
+th {
+    text-align: left;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    padding: 0 var(--spacing-md) var(--spacing-sm) var(--spacing-md);
+    font-weight: 500;
+}
+
+td {
+    background: rgba(255, 255, 255, 0.02);
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-feature-settings: "tnum";
+    /* Tabular numbers for finance */
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid transparent;
+}
+
+tr td:first-child {
+    border-top-left-radius: var(--radius-md);
+    border-bottom-left-radius: var(--radius-md);
+    color: var(--text-primary);
+    /* Highlight ID/Main info */
+}
+
+tr td:last-child {
+    border-top-right-radius: var(--radius-md);
+    border-bottom-right-radius: var(--radius-md);
+}
+
+tr:hover td {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+/* Badges & Amounts */
+.badge {
+    display: inline-block;
+    padding: 0.35em 0.8em;
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.badge-receita {
+    background: var(--success-bg);
+    color: var(--success);
+}
+
+.badge-despesa {
+    background: var(--danger-bg);
+    color: var(--danger);
+}
+
+.amount-positive {
+    color: var(--success);
+    font-weight: 500;
+}
+
+.amount-negative {
+    color: var(--text-primary);
+    opacity: 0.9;
+}
+
+/* Forms (Minimalist) */
+.form-group {
+    margin-bottom: var(--spacing-md);
+}
+
+label {
+    display: block;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--border);
+    padding: 1rem;
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    transition: var(--transition-calm);
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-secondary);
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.5;
+}
+
+/* Dashboard Header */
+.page-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.page-header p {
+    margin: 0.5rem auto 0;
+    font-size: 1.1rem;
+}
+.footer {   
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+/* Insights & KPIs */
+.insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.kpi-card {
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.kpi-label {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    font-family: var(--font-body);
+}
+
+.kpi-value {
+    font-size: 2.5rem;
+    font-family: var(--font-display);
+}
+
+.kpi-value-large {
+    font-size: 2.5rem;
+}
+
+.kpi-value-medium {
+    font-size: 2rem;
+}
+
+.kpi-value-positive {
+    color: var(--success);
+}
+
+.kpi-value-negative {
+    color: var(--danger);
+}
+
+.charts-section {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.chart-container {
+    height: 300px;
+    position: relative;
+}
+
+.chart-title {
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.category-list {
+    margin-top: 1.5rem;
+}
+
+.category-list table {
+    width: 100%;
+}
+
+.category-list tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.category-list td {
+    padding: 0.5rem 0;
+}
+
+.category-list td:last-child {
+    text-align: right;
+}
+
+.category-receita {
+    color: var(--success);
+}
+
+.category-despesa {
+    color: var(--text-secondary);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .nav-container {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+
+    .nav-links {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        row-gap: var(--spacing-sm);
+    }
+
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    /* Mobile Table: Card View logic could go here, 
+       but horizontal scroll (table-responsive) is safer for MVP */
+    td,
+    th {
+        padding: var(--spacing-sm);
+        font-size: 0.9rem;
+    }
+
+    /* Insights Mobile */
+    .insights-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .kpi-value-large {
+        font-size: 2rem;
+    }
+
+    .kpi-value-medium {
+        font-size: 1.75rem;
+    }
+
+    .chart-container {
+        height: 250px;
+    }
+}

@@ -1,58 +1,67 @@
-{{define "title"}}Criar Despesa{{end}}
+{{define "title"}}Nova Transação{{end}}
 
 {{define "content"}}
-<div class="page-header">
-    <h1>➕ Nova Despesa</h1>
-    <p>Adicione uma nova transação financeira</p>
-</div>
+<div style="max-width: 600px; margin: 0 auto;">
+    <div class="page-header" style="text-align: left; margin-bottom: 2rem;">
+        <a href="/" class="btn btn-warning" style="margin-bottom: 1rem; display: inline-flex;">← Voltar</a>
+        <h1>Adicionar Movimento</h1>
+        <p>Registre uma nova entrada ou saída financeira.</p>
+    </div>
 
-<div class="card" style="max-width: 600px;">
-    <form action="/create" method="POST">
-        <div class="form-group">
-            <label for="description">Descrição</label>
-            <input type="text" class="form-control" id="description" name="description" required
-                placeholder="Ex: Conta de luz">
-        </div>
+    <div class="card">
+        <form action="/create" method="POST">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="form-group">
+                <label for="description">O que é?</label>
+                <input type="text" id="description" name="description" placeholder="Ex: Salário, Aluguel, Café..."
+                    required autocomplete="off">
+            </div>
 
-        <div class="form-group">
-            <label for="amount">Valor (R$)</label>
-            <input type="number" class="form-control" id="amount" name="amount" step="0.01" min="0.01" required
-                placeholder="0.00">
-        </div>
+            <div class="form-group">
+                <label for="amount">Valor (R$)</label>
+                <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required
+                    style="font-size: 1.2rem; font-family: var(--font-display);">
+            </div>
 
-        <div class="form-group">
-            <label for="type">Tipo</label>
-            <select class="form-control" id="type" name="type" required>
-                <option value="">Selecione...</option>
-                <option value="despesa">💸 Despesa</option>
-                <option value="receita">💰 Receita</option>
-            </select>
-        </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="type">Tipo de Fluxo</label>
+                    <select id="type" name="type" required>
+                        <option value="" disabled selected>Selecione...</option>
+                        <option value="receita">Receita (Entrada)</option>
+                        <option value="despesa">Despesa (Saída)</option>
+                    </select>
+                </div>
 
-        <div class="form-group">
-            <label for="category">Categoria</label>
-            <select class="form-control" id="category" name="category" required>
-                <option value="">Selecione...</option>
-                <option value="alimentação">🍔 Alimentação</option>
-                <option value="transporte">🚗 Transporte</option>
-                <option value="moradia">🏠 Moradia</option>
-                <option value="saúde">🏥 Saúde</option>
-                <option value="educação">📚 Educação</option>
-                <option value="lazer">🎮 Lazer</option>
-                <option value="salário">💼 Salário</option>
-                <option value="outros">📦 Outros</option>
-            </select>
-        </div>
+                <div class="form-group">
+                    <label for="date">Data</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="date">Data</label>
-            <input type="date" class="form-control" id="date" name="date" required>
-        </div>
+            <div class="form-group">
+                <label for="category">Categoria</label>
+                <select id="category" name="category" required>
+                    <option value="" disabled selected>Selecione uma categoria</option>
+                    <option value="alimentacao">Alimentação</option>
+                    <option value="transporte">Transporte</option>
+                    <option value="lazer">Lazer</option>
+                    <option value="saude">Saúde</option>
+                    <option value="moradia">Moradia</option>
+                    <option value="educacao">Educação</option>
+                    <option value="outros">Outros</option>
+                </select>
+            </div>
 
-        <div class="actions" style="margin-top: 30px;">
-            <button type="submit" class="btn btn-success">💾 Salvar</button>
-            <a href="/" class="btn btn-secondary">❌ Cancelar</a>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="payer">Quem pagou? (Rateio)</label>
+                <input type="text" id="payer" name="payer" placeholder="Ex: João, Maria (Opcional)">
+            </div>
+
+            <div style="margin-top: 2rem; text-align: right;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Confirmar Registro</button>
+            </div>
+        </form>
+    </div>
 </div>
 {{end}}
