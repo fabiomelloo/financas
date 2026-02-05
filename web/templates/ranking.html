@@ -1,0 +1,90 @@
+{{define " title"}}Ranking de Pontos{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>Ranking da Equipe 🏆</h1>
+    <p>Veja quem está mandando bem no rateio do lanche!</p>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width: 60px;">Posição</th>
+                    <th>Nome</th>
+                    <th>Pontos</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range $index, $user := .Ranking}}
+                <tr
+                    style="{{if eq $index 0}}background: var(--success-bg);{{else if eq $index 1}}background: rgba(192, 192, 192, 0.1);{{else if eq $index 2}}background: rgba(205, 127, 50, 0.1);{{end}}">
+                    <td style="text-align: center; font-size: 1.5rem;">
+                        {{if eq $index 0}}🥇{{else if eq $index 1}}🥈{{else if eq $index 2}}🥉{{else if eq $index
+                        3}}4º{{else if eq $index 4}}5º{{else if eq $index 5}}6º{{else}}{{$index}}º{{end}}
+                    </td>
+                    <td style="color: var(--text-primary); font-weight: 600; font-size: 1.1rem;">
+                        {{$user.Name}}
+                    </td>
+                    <td>
+                        <span
+                            class="kpi-value-medium {{if ge $user.Points 0}}kpi-value-positive{{else}}kpi-value-negative{{end}}">
+                            {{$user.Points}} pts
+                        </span>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="3">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🏆</div>
+                            <h3>Nenhum membro no ranking</h3>
+                            <p>Cadastre membros e registre compras para ver o ranking.</p>
+                            <a href="/users" class="btn btn-primary" style="margin-top: 1rem;">Cadastrar Membros</a>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Explicação de pontos -->
+<div class="card" style="margin-top: 2rem;">
+    <h3 class="chart-title">Como os Pontos Funcionam</h3>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Ação</th>
+                    <th>Pontos</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>💰 Pagou o lanche do dia</td>
+                    <td class="amount-positive">+10</td>
+                </tr>
+                <tr>
+                    <td>🔥 Pagou acima da média do mês</td>
+                    <td class="amount-positive">+5</td>
+                </tr>
+                <tr>
+                    <td>🤝 Maior crédito do mês (ajudou o time)</td>
+                    <td class="amount-positive">+20</td>
+                </tr>
+                <tr>
+                    <td>❌ Maior débito do mês</td>
+                    <td class="amount-negative">-10</td>
+                </tr>
+                <tr>
+                    <td>😴 Não participou de nenhuma compra no mês</td>
+                    <td class="amount-negative">-15</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

@@ -26,12 +26,43 @@ func secureHandler(h http.HandlerFunc) http.HandlerFunc {
 	}
 }
 
-func RegisterRoutes(controller *controllers.ExpenseController) {
-	http.HandleFunc("/", secureHandler(controller.Index))
-	http.HandleFunc("/create", secureHandler(controller.Create))
-	http.HandleFunc("/edit", secureHandler(controller.Edit))
-	http.HandleFunc("/update", secureHandler(controller.Update))
-	http.HandleFunc("/delete", secureHandler(controller.Delete))
-	http.HandleFunc("/insights", secureHandler(controller.Insights))
-	http.HandleFunc("/rateio", secureHandler(controller.Rateio))
+// Controllers contém todos os controllers da aplicação
+type Controllers struct {
+	Expense      *controllers.ExpenseController
+	User         *controllers.UserController
+	Purchase     *controllers.PurchaseController
+	Gamification *controllers.GamificationController
+}
+
+func RegisterRoutes(c *Controllers) {
+	// ============================================
+	// Rotas de Despesas/Receitas (Finanças Pessoais)
+	// ============================================
+	http.HandleFunc("/", secureHandler(c.Expense.Index))
+	http.HandleFunc("/create", secureHandler(c.Expense.Create))
+	http.HandleFunc("/edit", secureHandler(c.Expense.Edit))
+	http.HandleFunc("/update", secureHandler(c.Expense.Update))
+	http.HandleFunc("/delete", secureHandler(c.Expense.Delete))
+	http.HandleFunc("/insights", secureHandler(c.Expense.Insights))
+
+	// ============================================
+	// Rotas de Membros/Usuários (Equipe do Rateio)
+	// ============================================
+	http.HandleFunc("/users", secureHandler(c.User.Index))
+	http.HandleFunc("/users/create", secureHandler(c.User.Create))
+	http.HandleFunc("/users/delete", secureHandler(c.User.Delete))
+
+	// ============================================
+	// Rotas de Compras de Lanche (Rateio)
+	// ============================================
+	http.HandleFunc("/purchases", secureHandler(c.Purchase.Index))
+	http.HandleFunc("/purchases/create", secureHandler(c.Purchase.Create))
+	http.HandleFunc("/purchases/delete", secureHandler(c.Purchase.Delete))
+	http.HandleFunc("/purchases/process", secureHandler(c.Purchase.ProcessMonth))
+
+	// ============================================
+	// Rotas de Gamificação (Ranking e Conquistas)
+	// ============================================
+	http.HandleFunc("/ranking", secureHandler(c.Gamification.Ranking))
+	http.HandleFunc("/achievements", secureHandler(c.Gamification.Achievements))
 }

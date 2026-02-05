@@ -1,0 +1,72 @@
+{{define " title"}}Membros da Equipe{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>Equipe do Lanche 👥</h1>
+    <p>Cadastre os 6 membros que participam do rateio.</p>
+</div>
+
+<!-- Formulário para adicionar membro -->
+<div class="card" style="max-width: 500px; margin: 0 auto 2rem;">
+    <h3 class="chart-title">Adicionar Membro</h3>
+    <form action="/users/create" method="POST">
+        <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+        <div class="form-group">
+            <label for="name">Nome do Membro</label>
+            <input type="text" id="name" name="name" placeholder="Ex: João, Maria..." required autocomplete="off">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Adicionar Membro</button>
+    </form>
+</div>
+
+<!-- Lista de membros -->
+<div class="card">
+    <h3 class="chart-title">Membros Cadastrados</h3>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Nome</th>
+                    <th>Pontos</th>
+                    <th>Desde</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Users}}
+                <tr>
+                    <td>#{{.ID}}</td>
+                    <td style="color: var(--text-primary); font-weight: 500;">{{.Name}}</td>
+                    <td>
+                        <span class="badge {{if ge .Points 0}}badge-receita{{else}}badge-despesa{{end}}">
+                            {{.Points}} pts
+                        </span>
+                    </td>
+                    <td>{{.CreatedAt.Format "02/01/2006"}}</td>
+                    <td>
+                        <form action="/users/delete" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="{{.ID}}">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                            <button type="submit" class="btn btn-danger"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem;"
+                                onclick="return confirm('Remover este membro?')">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👤</div>
+                            <h3>Nenhum membro cadastrado</h3>
+                            <p>Adicione os 6 membros da equipe acima.</p>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

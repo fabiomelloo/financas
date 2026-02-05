@@ -12,28 +12,69 @@ import (
 )
 
 func main() {
-	// Initialize database connection
+	// ============================================
+	// Inicializar conexão com o banco de dados
+	// ============================================
 	db, err := database.Connect()
 	if err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal("Falha ao conectar ao banco de dados:", err)
 	}
 	defer db.Close()
 
-	// Initialize layers (Dependency Injection)
-	repository := repositories.NewExpenseRepository(db)
-	service := services.NewExpenseService(repository)
-	controller := controllers.NewExpenseController(service)
+	// ============================================
+	// Inicializar Repositories (Acesso a Dados)
+	// ============================================
+	expenseRepo := repositories.NewExpenseRepository(db)
+	userRepo := repositories.NewUserRepository(db)
+	purchaseRepo := repositories.NewPurchaseRepository(db)
+	achievementRepo := repositories.NewAchievementRepository(db)
 
-	// Register routes
-	routes.RegisterRoutes(controller)
+	// ============================================
+	// Inicializar Services (Regras de Negócio)
+	// ============================================
+	expenseService := services.NewExpenseService(expenseRepo)
+	userService := services.NewUserService(userRepo)
+	purchaseService := services.NewPurchaseService(purchaseRepo, userRepo)
+	gamificationService := services.NewGamificationService(userRepo, purchaseRepo, achievementRepo)
 
-	// Serve static files (CSS, JS, images)
+	// ============================================
+	// Inicializar Controllers (HTTP Handlers)
+	// ============================================
+	expenseController := controllers.NewExpenseController(expenseService)
+	userController := controllers.NewUserController(userService)
+	purchaseController := controllers.NewPurchaseController(purchaseService, userService, gamificationService)
+	gamificationController := controllers.NewGamificationController(gamificationService, purchaseService)
+
+	// ============================================
+	// Registrar Rotas
+	// ============================================
+	allControllers := &routes.Controllers{
+		Expense:      expenseController,
+		User:         userController,
+		Purchase:     purchaseController,
+		Gamification: gamificationController,
+	}
+	routes.RegisterRoutes(allControllers)
+
+	// Servir arquivos estáticos (CSS, JS, imagens)
 	fs := http.FileServer(http.Dir("web/static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	// Start HTTP server
-	fmt.Println("Server running at http://localhost:8080")
+	// ============================================
+	// Iniciar servidor HTTP
+	// ============================================
+	fmt.Println("╔══════════════════════════════════════════════════════════════╗")
+	fmt.Println("║  🚀 Servidor Finanças + Rateio rodando!                      ║")
+	fmt.Println("║                                                              ║")
+	fmt.Println("║  📊 Dashboard:      http://localhost:8080                    ║")
+	fmt.Println("║  👥 Membros:        http://localhost:8080/users              ║")
+	fmt.Println("║  🥪 Compras:        http://localhost:8080/purchases          ║")
+	fmt.Println("║  🏆 Ranking:        http://localhost:8080/ranking            ║")
+	fmt.Println("║  🏅 Conquistas:     http://localhost:8080/achievements       ║")
+	fmt.Println("║  📈 Relatórios:     http://localhost:8080/insights           ║")
+	fmt.Println("╚══════════════════════════════════════════════════════════════╝")
+
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal("Failed to start server:", err)
+		log.Fatal("Falha ao iniciar servidor:", err)
 	}
 }

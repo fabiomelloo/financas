@@ -1,0 +1,159 @@
+{{define " title"}}Compras do Lanche{{end}}
+
+{{define "content"}}
+<div class="page-header">
+    <h1>Compras do Lanche 🥪</h1>
+    <p>Registre quem pagou o lanche de cada dia.</p>
+</div>
+
+<!-- KPIs do mês -->
+<div class="insights-grid">
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Total do Mês</h3>
+        <div class="kpi-value kpi-value-large kpi-value-negative">
+            R$ {{printf "%.2f" .RateioData.TotalSpent}}
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Cota por Pessoa</h3>
+        <div class="kpi-value kpi-value-medium" style="color: var(--text-primary);">
+            R$ {{printf "%.2f" .RateioData.SharePerPerson}}
+        </div>
+    </div>
+    <div class="card kpi-card">
+        <h3 class="kpi-label">Membros</h3>
+        <div class="kpi-value kpi-value-medium" style="color: var(--text-primary);">
+            {{.RateioData.MemberCount}}
+        </div>
+    </div>
+</div>
+
+<!-- Grid: Nova compra + Balanço -->
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+    <!-- Formulário de nova compra -->
+    <div class="card">
+        <h3 class="chart-title">Registrar Compra</h3>
+        <form action="/purchases/create" method="POST">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <div class="form-group">
+                <label for="user_id">Quem pagou?</label>
+                <select id="user_id" name="user_id" required>
+                    <option value="" disabled selected>Selecione...</option>
+                    {{range .Users}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label for="amount">Valor (R$)</label>
+                    <input type="number" id="amount" name="amount" step="0.01" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label for="date">Data</label>
+                    <input type="date" id="date" name="date" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">Registrar Compra (+10 pts)</button>
+        </form>
+    </div>
+
+    <!-- Balanço do mês -->
+    <div class="card">
+        <h3 class="chart-title">Balanço Individual - {{.CurrentMonth}}</h3>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Pagou</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .RateioData.MemberStats}}
+                    <tr>
+                        <td style="font-weight: 500;">{{.UserName}}</td>
+                        <td>R$ {{printf "%.2f" .Paid}}</td>
+                        <td class="{{if ge .Balance 0.0}}amount-positive{{else}}amount-negative{{end}}">
+                            {{if ge .Balance 0.0}}+{{end}}R$ {{printf "%.2f" .Balance}}
+                        </td>
+                        <td>
+                            {{if ge .Balance 0.0}}
+                            <span class="badge badge-receita">Crédito</span>
+                            {{else}}
+                            <span class="badge badge-despesa">Débito</span>
+                            {{end}}
+                        </td>
+                    </tr>
+                    {{else}}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: var(--text-secondary);">
+                            Nenhum membro cadastrado. <a href="/users" style="color: var(--accent);">Adicionar
+                                membros</a>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        <!-- Botão para fechar o mês -->
+        <form action="/purchases/process" method="POST" style="margin-top: 1rem;">
+            <input type="hidden" name="csrf_token" value="{{.CSRFToken}}">
+            <input type="hidden" name="month" value="{{.CurrentMonth}}">
+            <button type="submit" class="btn btn-warning" style="width: 100%;"
+                onclick="return confirm('Isso processará pontos e conquistas do mês. Continuar?')">
+                🏆 Fechar Mês e Distribuir Pontos
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Lista de compras do mês -->
+<div class="card">
+    <h3 class="chart-title">Compras do Mês ({{.CurrentMonth}})</h3>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Quem Pagou</th>
+                    <th>Valor</th>
+                    <th>Data</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Purchases}}
+                <tr>
+                    <td>#{{.ID}}</td>
+                    <td style="color: var(--text-primary); font-weight: 500;">{{.UserName}}</td>
+                    <td class="amount-negative">R$ {{printf "%.2f" .Amount}}</td>
+                    <td>{{.Date.Format "02/01/2006"}}</td>
+                    <td>
+                        <form action="/purchases/delete" method="POST" style="display:inline;">
+                            <input type="hidden" name="id" value="{{.ID}}">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRFToken}}">
+                            <button type="submit" class="btn btn-danger"
+                                style="padding: 0.4rem 0.8rem; font-size: 0.9rem;"
+                                onclick="return confirm('Remover esta compra?')">Remover</button>
+                        </form>
+                    </td>
+                </tr>
+                {{else}}
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">🥪</div>
+                            <h3>Nenhuma compra este mês</h3>
+                            <p>Registre a primeira compra acima.</p>
+                        </div>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{end}}

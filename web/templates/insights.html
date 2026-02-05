@@ -1,4 +1,4 @@
-{{define "title"}}Relatórios & Estatísticas{{end}}
+{{define " title"}}Relatórios & Estatísticas{{end}}
 
 {{define "content"}}
 <div class="page-header">
@@ -127,9 +127,20 @@
 <!-- Chart.js Library and Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" onload="initCharts()"></script>
 <script>
-    // Initialize charts after Chart.js loads
+    // Dados gerados pelo servidor
+    const chartData = {
+        categories: [{{ range $i, $c:= .Data.CategoryStats }}{{ if $i }}, { { end } } "{{$c.Category}}"{ { end } }],
+    categoryTotals: [{{ range $i, $c:= .Data.CategoryStats }}{{ if $i }}, {{ end }}{{ $c.Total }}{{ end }}],
+        categoryTypes: [{{ range $i, $c:= .Data.CategoryStats }}{{ if $i }}, {{ end }}"{{$c.Type}}"{{ end }}],
+            types: [{{ range $i, $t:= .Data.TypeStats }}{{ if $i }}, {{ end }}"{{$t.Type}}"{{ end }}],
+                typeTotals: [{{ range $i, $t:= .Data.TypeStats }}{{ if $i }}, {{ end }}{{ $t.Total }}{{ end }}],
+                    months: [{{ range $i, $m:= .Data.MonthlyStats }}{{ if $i }}, {{ end }}"{{$m.Month}}"{{ end }}],
+                        monthlyIncomes: [{{ range $i, $m:= .Data.MonthlyStats }}{{ if $i }}, {{ end }}{{ $m.Income }}{{ end }}],
+                            monthlyExpenses: [{{ range $i, $m:= .Data.MonthlyStats }}{{ if $i }}, {{ end }}{{ $m.Expense }}{{ end }}],
+                                monthlyBalances: [{{ range $i, $m:= .Data.MonthlyStats }}{{ if $i }}, {{ end }}{{ $m.Balance }}{{ end }}]
+    };
+
     function initCharts() {
-        // Double check Chart.js is loaded
         if (typeof Chart === 'undefined') {
             console.warn('Chart.js ainda não carregou, tentando novamente...');
             setTimeout(initCharts, 200);
@@ -137,84 +148,53 @@
         }
 
         console.log('Chart.js carregado, inicializando gráficos...');
+
         // Gráfico de Categorias (Rosca)
         const categoryCtx = document.getElementById('categoryChart');
-        if (categoryCtx) {
-            try {
-                const categories = [];
-                const dataValues = [];
-                const types = [];
+        if (categoryCtx && chartData.categories.length > 0) {
+            const bgColors = chartData.categoryTypes.map(t => t === 'receita' ? '#9CAF88' : 'rgba(212, 140, 149, 0.6)');
+            const borderColors = chartData.categoryTypes.map(t => t === 'receita' ? '#9CAF88' : '#D48C95');
 
-                { { range.Data.CategoryStats } }
-                categories.push("{{.Category}}");
-                dataValues.push({{.Total }});
-            types.push("{{.Type}}");
-            { { end } }
-
-            console.log('Dados do gráfico de categorias:', { categories, dataValues, types });
-
-            if (categories.length > 0) {
-                const bgColors = types.map(t => t === 'receita' ? '#9CAF88' : 'rgba(212, 140, 149, 0.6)');
-                const borderColors = types.map(t => t === 'receita' ? '#9CAF88' : '#D48C95');
-
-                new Chart(categoryCtx.getContext('2d'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: categories,
-                        datasets: [{
-                            data: dataValues,
-                            backgroundColor: bgColors,
-                            borderColor: borderColors,
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    color: '#e0e0e0',
-                                    font: { family: 'Inter' },
-                                    padding: 20
-                                }
-                            },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (context) {
-                                        return context.label + ': R$ ' + context.parsed.toFixed(2);
-                                    }
-                                }
+            new Chart(categoryCtx.getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.categories,
+                    datasets: [{
+                        data: chartData.categoryTotals,
+                        backgroundColor: bgColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e0e0e0',
+                                font: { family: 'Inter' },
+                                padding: 20
                             }
                         },
-                        cutout: '60%'
-                    }
-                });
-                console.log('Gráfico de categorias criado com sucesso');
-            } else {
-                console.warn('Nenhum dado de categoria disponível');
-            }
-        } catch (error) {
-            console.error('Erro ao criar gráfico de categorias:', error);
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.label + ': R$ ' + context.parsed.toFixed(2);
+                                }
+                            }
+                        }
+                    },
+                    cutout: '60%'
+                }
+            });
         }
-    }
 
-    // Gráfico de Tipos (Barras)
-    const typeCtx = document.getElementById('typeChart');
-    if (typeCtx) {
-        try {
-            const typeLabels = [];
-            const typeValues = [];
-
-            { { range.Data.TypeStats } }
-            typeLabels.push("{{.Type}}" === "receita" ? "Receitas" : "Despesas");
-            typeValues.push({{.Total }});
-        { { end } }
-
-        console.log('Dados do gráfico de tipos:', { typeLabels, typeValues });
-
-        if (typeLabels.length > 0) {
+        // Gráfico de Tipos (Barras)
+        const typeCtx = document.getElementById('typeChart');
+        if (typeCtx && chartData.types.length > 0) {
+            const typeLabels = chartData.types.map(t => t === "receita" ? "Receitas" : "Despesas");
             const typeColors = typeLabels.map(l => l === "Receitas" ? '#9CAF88' : '#D48C95');
 
             new Chart(typeCtx.getContext('2d'), {
@@ -223,7 +203,7 @@
                     labels: typeLabels,
                     datasets: [{
                         label: 'Valor Total',
-                        data: typeValues,
+                        data: chartData.typeTotals,
                         backgroundColor: typeColors,
                         borderColor: typeColors,
                         borderWidth: 1
@@ -233,9 +213,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            display: false
-                        },
+                        legend: { display: false },
                         tooltip: {
                             callbacks: {
                                 label: function (context) {
@@ -253,138 +231,96 @@
                                     return 'R$ ' + value.toFixed(0);
                                 }
                             },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
                         x: {
-                            ticks: {
-                                color: '#e0e0e0'
-                            },
-                            grid: {
-                                color: 'rgba(255, 255, 255, 0.1)'
-                            }
+                            ticks: { color: '#e0e0e0' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         }
                     }
                 }
             });
-            console.log('Gráfico de tipos criado com sucesso');
-        } else {
-            console.warn('Nenhum dado de tipo disponível');
-        }
-    } catch (error) {
-        console.error('Erro ao criar gráfico de tipos:', error);
-    }
         }
 
-    // Gráfico Mensal (Linha)
-    const monthlyCtx = document.getElementById('monthlyChart');
-    if (monthlyCtx) {
-        try {
-            const months = [];
-            const incomes = [];
-            const expenses = [];
-            const balances = [];
+        // Gráfico Mensal (Linha)
+        const monthlyCtx = document.getElementById('monthlyChart');
+        if (monthlyCtx && chartData.months.length > 0) {
+            // Reverse to show oldest to newest
+            const months = [...chartData.months].reverse();
+            const incomes = [...chartData.monthlyIncomes].reverse();
+            const expenses = [...chartData.monthlyExpenses].reverse();
+            const balances = [...chartData.monthlyBalances].reverse();
 
-            { { range.Data.MonthlyStats } }
-            months.push("{{.Month}}");
-            incomes.push({{.Income }});
-        expenses.push({{.Expense }});
-    balances.push({{.Balance }});
-    { { end } }
-
-    console.log('Dados do gráfico mensal:', { months, incomes, expenses, balances });
-
-    if (months.length > 0) {
-        // Reverse to show oldest to newest
-        months.reverse();
-        incomes.reverse();
-        expenses.reverse();
-        balances.reverse();
-
-        new Chart(monthlyCtx.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: months,
-                datasets: [
-                    {
-                        label: 'Receitas',
-                        data: incomes,
-                        borderColor: '#9CAF88',
-                        backgroundColor: 'rgba(156, 175, 136, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Despesas',
-                        data: expenses,
-                        borderColor: '#D48C95',
-                        backgroundColor: 'rgba(212, 140, 149, 0.1)',
-                        tension: 0.4,
-                        fill: true
-                    },
-                    {
-                        label: 'Saldo',
-                        data: balances,
-                        borderColor: '#4B0082',
-                        backgroundColor: 'rgba(75, 0, 130, 0.1)',
-                        tension: 0.4,
-                        borderDash: [5, 5]
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#e0e0e0',
-                            font: { family: 'Inter' }
+            new Chart(monthlyCtx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Receitas',
+                            data: incomes,
+                            borderColor: '#9CAF88',
+                            backgroundColor: 'rgba(156, 175, 136, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Despesas',
+                            data: expenses,
+                            borderColor: '#D48C95',
+                            backgroundColor: 'rgba(212, 140, 149, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Saldo',
+                            data: balances,
+                            borderColor: '#4B0082',
+                            backgroundColor: 'rgba(75, 0, 130, 0.1)',
+                            tension: 0.4,
+                            borderDash: [5, 5]
                         }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function (context) {
-                                return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2);
-                            }
-                        }
-                    }
+                    ]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            color: '#e0e0e0',
-                            callback: function (value) {
-                                return 'R$ ' + value.toFixed(0);
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#e0e0e0',
+                                font: { family: 'Inter' }
                             }
                         },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': R$ ' + context.parsed.y.toFixed(2);
+                                }
+                            }
                         }
                     },
-                    x: {
-                        ticks: {
-                            color: '#e0e0e0'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#e0e0e0',
+                                callback: function (value) {
+                                    return 'R$ ' + value.toFixed(0);
+                                }
+                            },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                        x: {
+                            ticks: { color: '#e0e0e0' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         }
                     }
                 }
-            }
-        });
-        console.log('Gráfico mensal criado com sucesso');
-    } else {
-        console.warn('Nenhum dado mensal disponível');
-    }
-            } catch (error) {
-        console.error('Erro ao criar gráfico mensal:', error);
-    }
+            });
         }
 
-    console.log('Todos os gráficos inicializados');
+        console.log('Todos os gráficos inicializados');
     }
 
     // Fallback: Initialize when DOM is ready if Chart.js already loaded
@@ -395,7 +331,6 @@
             }
         });
     } else {
-        // DOM already loaded, check if Chart.js is available
         if (typeof Chart !== 'undefined') {
             initCharts();
         }

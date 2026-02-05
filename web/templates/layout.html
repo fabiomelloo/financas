@@ -6,23 +6,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description"
-        content="Sistema de controle financeiro pessoal. Gerencie suas receitas e despesas de forma simples e eficiente.">
+        content="Sistema de controle financeiro e rateio de lanche da equipe. Gerencie despesas, pontos e conquistas.">
     <meta name="theme-color" content="#1a1a2e">
     <meta name="robots" content="index, follow">
-    <meta name="author" content="Finanças">
+    <meta name="author" content="Finanças + Rateio">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{template " title" .}} - Finanças">
     <meta property="og:description"
-        content="Sistema de controle financeiro pessoal. Gerencie suas receitas e despesas.">
-    <meta property="og:site_name" content="Finanças">
+        content="Sistema de controle financeiro e rateio de lanche da equipe com gamificação.">
+    <meta property="og:site_name" content="Finanças + Rateio">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="{{template " title" .}} - Finanças">
     <meta name="twitter:description"
-        content="Sistema de controle financeiro pessoal. Gerencie suas receitas e despesas.">
+        content="Sistema de controle financeiro e rateio de lanche da equipe com gamificação.">
 
     <title>{{template " title" .}} - Finanças</title>
 
@@ -47,12 +47,16 @@
             <ul class="nav-links">
                 <li><a href="/" class="{{if eq .CurrentPage " index"}}active{{end}}"
                         aria-current="{{if eq .CurrentPage " index"}}page{{end}}">📊 Dashboard</a></li>
-                <li><a href="/create" class="{{if eq .CurrentPage " create"}}active{{end}}"
-                        aria-current="{{if eq .CurrentPage " create"}}page{{end}}">➕ Nova Transação</a></li>
+                <li><a href="/purchases" class="{{if eq .CurrentPage " purchases"}}active{{end}}"
+                        aria-current="{{if eq .CurrentPage " purchases"}}page{{end}}">🥪 Lanche</a></li>
+                <li><a href="/users" class="{{if eq .CurrentPage " users"}}active{{end}}"
+                        aria-current="{{if eq .CurrentPage " users"}}page{{end}}">👥 Equipe</a></li>
+                <li><a href="/ranking" class="{{if eq .CurrentPage " ranking"}}active{{end}}"
+                        aria-current="{{if eq .CurrentPage " ranking"}}page{{end}}">🏆 Ranking</a></li>
+                <li><a href="/achievements" class="{{if eq .CurrentPage " achievements"}}active{{end}}"
+                        aria-current="{{if eq .CurrentPage " achievements"}}page{{end}}">🏅 Conquistas</a></li>
                 <li><a href="/insights" class="{{if eq .CurrentPage " insights"}}active{{end}}"
                         aria-current="{{if eq .CurrentPage " insights"}}page{{end}}">📈 Relatórios</a></li>
-                <li><a href="/rateio" class="{{if eq .CurrentPage " rateio"}}active{{end}}"
-                        aria-current="{{if eq .CurrentPage " rateio"}}page{{end}}">🥪 Rateio</a></li>
             </ul>
         </div>
     </nav>
